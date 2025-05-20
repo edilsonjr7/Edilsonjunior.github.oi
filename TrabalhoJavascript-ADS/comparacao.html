@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparativo: XmlHttpRequest, Fetch, Promises e Async/Await</title>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+
+        .container {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .resultado {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        nav a {
+            display: inline-block;
+            margin-right: 10px;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Comparativo de Requisições Assíncronas em JavaScript</h1>
+
+    <a href="index.html" target="_blank">Voltar para página principal</a>
+
+    <div class="container">
+        <h2>1. XmlHttpRequest</h2>
+        <button onclick="executarXHR()">Executar Requisição XHR</button>
+        <div id="resultadoXHR" class="resultado"></div>
+        <div id="tempoXHR" class="resultado"></div>
+    </div>
+
+    <div class="container">
+        <h2>2. Fetch API</h2>
+        <button onclick="executarFetch()">Executar Requisição Fetch</button>
+        <div id="resultadoFetch" class="resultado"></div>
+        <div id="tempoFetch" class="resultado"></div>
+    </div>
+
+    <div class="container">
+        <h2>3. Promises (com Fetch)</h2>
+        <button onclick="executarPromiseFetch()">Executar Requisição com Promise (Fetch)</button>
+        <div id="resultadoPromiseFetch" class="resultado"></div>
+        <div id="tempoPromiseFetch" class="resultado"></div>
+    </div>
+
+    <div class="container">
+        <h2>4. Async/Await (com Fetch)</h2>
+        <button onclick="executarAsyncAwaitFetch()">Executar Requisição com Async/Await (Fetch)</button>
+        <div id="resultadoAsyncAwaitFetch" class="resultado"></div>
+        <div id="tempoAsyncAwaitFetch" class="resultado"></div>
+    </div>
+
+    <script>
+        const apiUrl = 'https://jsonplaceholder.typicode.com/todos/1'; // Uma API pública para testes
+
+        function medirTempo(funcao) {
+            const inicio = performance.now();
+            funcao();
+            const fim = performance.now();
+            return (fim - inicio).toFixed(2);
+        }
+
+        // 1. XmlHttpRequest
+        function executarXHR() {
+            const xhr = new XMLHttpRequest();
+            const resultadoDiv = document.getElementById('resultadoXHR');
+            const tempoDiv = document.getElementById('tempoXHR');
+
+            const tempoExecucao = medirTempo(() => {
+                xhr.open('GET', apiUrl);
+                xhr.onload = function () {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resultadoDiv.textContent = `Sucesso: ${xhr.responseText}`;
+                    } else {
+                        resultadoDiv.textContent = `Erro: ${xhr.status} - ${xhr.statusText}`;
+                    }
+                    tempoDiv.textContent = `Tempo de execução: ${tempoExecucao} ms`;
+                };
+                xhr.onerror = function () {
+                    resultadoDiv.textContent = 'Erro de rede.';
+                    tempoDiv.textContent = `Tempo de execução: ${tempoExecucao} ms`;
+                };
+                xhr.send();
+            });
+        }
+
+        // 2. Fetch API
+        function executarFetch() {
+            const resultadoDiv = document.getElementById('resultadoFetch');
+            const tempoDiv = document.getElementById('tempoFetch');
+
+            const tempoExecucao = medirTempo(() => {
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Erro na requisição: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        resultadoDiv.textContent = `Sucesso: ${JSON.stringify(data)}`;
+                        tempoDiv.textContent = `Tempo de execução: ${tempoExecucao} ms`;
+                    })
+                    .catch(error => {
+                        resultadoDiv.textContent = `Erro: ${error.message}`;
+                        tempoDiv.textContent = `Tempo de execução: ${tempoExecucao} ms`;
+                    });
+            });
+        }
+
+        // 3. Promises (com Fetch)
+        function executarPromiseFetch() {
+            const resultadoDiv = document.getElementById('resultadoPromiseFetch');
+            const tempoDiv = document.getElementById('tempoPromiseFetch');
+
+            const fazerRequisicao = () => {
+                return fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Erro na requisição: ${response.status}`);
+                        }
+                        return response.json();
+                    });
+            };
+
+            const tempoExecucao = medirTempo(() => {
+                fazerRequisicao()
+                    .then(data => {
+                        resultadoDiv.textContent = `Sucesso: ${JSON.stringify(data)}`;
+                        tempoDiv.textContent = `Tempo de execução: ${tempoExecucao} ms`;
+                    })
+                    .catch(error => {
+                        resultadoDiv.textContent = `Erro: ${error.message}`;
+                        tempoDiv.textContent = `Tempo de execução: ${tempoExecucao} ms`;
+                    });
+            });
+        }
+
+        // 4. Async/Await (com Fetch)
+        async function executarAsyncAwaitFetch() {
+            const resultadoDiv = document.getElementById('resultadoAsyncAwaitFetch');
+            const tempoDiv = document.getElementById('tempoAsyncAwaitFetch');
+
+            const tempoExecucao = medirTempo(async () => {
+                try {
+                    const response = await fetch(apiUrl);
+                    if (!response.ok) {
+                        throw new Error(`Erro na requisição: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    resultadoDiv.textContent = `Sucesso: ${JSON.stringify(data)}`;
+                    tempoDiv.textContent = `Tempo de execução: ${tempoExecucao} ms`;
+                } catch (error) {
+                    resultadoDiv.textContent = `Erro: ${error.message}`;
+                    tempoDiv.textContent = `Tempo de execução: ${tempoExecucao} ms`;
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>

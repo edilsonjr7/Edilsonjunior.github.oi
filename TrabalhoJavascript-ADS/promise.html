@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <title>AJAX com Promises - Exemplo Simples</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #mensagem {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+
+    nav a {
+      display: inline-block;
+      margin-right: 10px;
+      margin-top: 20px;
+      text-decoration: none;
+      color: #007bff;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Exemplo simples de AJAX usando Promises</h2>
+
+  <button id="btnCarregar">Carregar Mensagem</button>
+
+  <nav>
+    <a href="exemplo.html" target="_blank">Ir para async/await</a>
+    <a href="index.html" target="_blank">Voltar para página principal</a>
+    <a href="ajaz3.html" target="_blank">Ir para Fetch</a>
+    <a href="comparacao.html" target="_blank">Ir para Comparação entre eles</a>
+  </nav>
+
+  <p id="mensagem">Clique no botão para ver a mensagem.</p>
+
+  <script>
+    function carregarTexto() {
+      fetch('mensagem.txt')
+        .then(resposta => {
+          if (!resposta.ok) {
+            throw new Error('Erro na requisição');
+          }
+          return resposta.text();
+        })
+        .then(texto => {
+          document.getElementById('mensagem').innerText = texto;
+        })
+        .catch(erro => {
+          document.getElementById('mensagem').innerText = 'Erro ao carregar a mensagem: ' + erro.message;
+        });
+    }
+
+    document.getElementById('btnCarregar').addEventListener('click', carregarTexto);
+  </script>
+</body>
+
+</html>
